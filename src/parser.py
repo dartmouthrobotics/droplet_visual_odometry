@@ -21,7 +21,8 @@ import cv2 as cv
 
 parent = os.path.dirname(os.getcwd())
 print(parent)
-filePath = parent+'/RoboticsLab/gitHub_VO/Parameters/camera_calibration.yaml'
+#filePath = parent+'/RoboticsLab/gitHub_VO/Parameters/camera_calibration.yaml'
+filePath = '/home/sam/Dev/gradschool/aiwei_code/droplet_visual_odometry/Parameters/camera_calibration.yaml'
 print(filePath)
 with open(filePath) as camCalib:
     data = yaml.load(camCalib, Loader=SafeLoader)
@@ -53,14 +54,15 @@ print(int_coeff_mtx)
 
 all_frames = []
 
-
-video = cv.VideoCapture('/Users/ivyzhang/PycharmProjects/RoboticsLab/build_from_robot_view_deepend.mp4')
+videoPath = '/home/sam/Dev/gradschool/aiwei_code/data/build_from_robot_view_deepend.avi'
+video = cv.VideoCapture(videoPath)
 
 width = video.get(cv.CAP_PROP_FRAME_WIDTH )
 height = video.get(cv.CAP_PROP_FRAME_HEIGHT )
+print(type(width))
 fps = video.get(cv.CAP_PROP_FPS)
 
-out = cv.VideoWriter('parser_two_video.avi', cv.VideoWriter_fourcc(*'MP42'), fps, (width, height))
+out = cv.VideoWriter('parser_two_video.avi', cv.VideoWriter_fourcc(*'MP42'), fps, (int(width), int(height)))
 
 length = int(video.get(cv.CAP_PROP_FRAME_COUNT))
 print("Total number of frames: ", length)
@@ -83,10 +85,13 @@ while (count<length):
 
     # crop the image
     x, y, w, h = roi
-    dst = dst[y:y+h, x:x+w]
+    #dst = dst[y:y+h, x:x+w]
     # /Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one
-    image_frame = cv.imwrite('/Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one/frame%d.jpg'%count, dst)
-    out.write(image_frame)
+    cv.imshow('undistorted_view', dst)
+    cv.waitKey(1)
+    #image_frame = cv.imwrite('/Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one/frame%d.jpg'%count, dst)
+
+    out.write(dst)
     
     # #### This part will feed the new frame into a resulting video
     # image = cv.imread(image_frame)
