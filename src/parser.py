@@ -1,7 +1,7 @@
 ######################################################################
 ## This algorithm is created for: parsing the yaml file to undistort frames of the input video
-## Iteration: 1
-## Date: December 19th 2022
+## Iteration: 2
+## Date: December 22nd 2022
 ## Author: @IvyZhang, for the Dartmouth Reality and Robotics Lab
 ######################################################################
 
@@ -50,32 +50,50 @@ print(int_coeff_mtx)
 #      crop the image
 #      save the image
 
-def undistort_video(input_video):
-    video = cv.VideoCapture(input_video)
-    length = int(video.get(cv.CAP_PROP_FRAME_COUNT))
-    print("Total number of frames: ", length)
-    count = 1
-    while (count<length):
-        ret, frame = video.read()
-        # Check the 'ret' (return value) to see if we have read all the frames in the video to exit the loop
-        if not ret:
-            print('Processed all frames')
-            break
 
-        h, w = frame.shape[:2]
-        newCameraMtx, roi = cv.getOptimalNewCameraMatrix(int_coeff_mtx, dist_coef_arr, (w, h), 1, (w, h))
-
-        # undistort
-        dst = cv.undistort(frame, int_coeff_mtx, dist_coef_arr, None, newCameraMtx)
-
-        # crop the image
-        x, y, w, h = roi
-        dst = dst[y:y+h, x:x+w]
-        # /Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one
-        cv.imwrite('/Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one/frame%d.jpg'%count, frame)
-        count+=1
-
-undistort_video('/Users/ivyzhang/PycharmProjects/RoboticsLab/build_from_robot_view_deepend.mp4')
+all_frames = []
 
 
+video = cv.VideoCapture('/Users/ivyzhang/PycharmProjects/RoboticsLab/build_from_robot_view_deepend.mp4')
 
+width = video.get(cv.CAP_PROP_FRAME_WIDTH )
+height = video.get(cv.CAP_PROP_FRAME_HEIGHT )
+fps = video.get(cv.CAP_PROP_FPS)
+
+out = cv.VideoWriter('parser_two_video.avi', cv.VideoWriter_fourcc(*'MP42'), fps, (width, height))
+
+length = int(video.get(cv.CAP_PROP_FRAME_COUNT))
+print("Total number of frames: ", length)
+count = 1
+
+while (count<length):
+    ret, frame = video.read()
+    # Check the 'ret' (return value) to see if we have read all the frames in the video to exit the loop
+    
+    if not ret:
+        print('Processed all frames')
+        video.release()
+        break
+
+    h, w = frame.shape[:2]
+    newCameraMtx, roi = cv.getOptimalNewCameraMatrix(int_coeff_mtx, dist_coef_arr, (w, h), 1, (w, h))
+
+    # undistort
+    dst = cv.undistort(frame, int_coeff_mtx, dist_coef_arr, None, newCameraMtx)
+
+    # crop the image
+    x, y, w, h = roi
+    dst = dst[y:y+h, x:x+w]
+    # /Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one
+    image_frame = cv.imwrite('/Users/ivyzhang/PycharmProjects/RoboticsLab/gitHub_VO/results_one/frame%d.jpg'%count, dst)
+    out.write(image_frame)
+    
+    # #### This part will feed the new frame into a resulting video
+    # image = cv.imread(image_frame)
+    # height, width, layers = image.shape
+    # size = (width, height)
+    # all_frames.append(image)
+    # increment
+    count+=1
+
+out.release()
