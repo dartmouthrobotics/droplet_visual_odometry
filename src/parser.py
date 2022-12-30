@@ -14,6 +14,8 @@ import os as os
 
 import cv2 as cv
 
+# this is a random comment
+
 # PART ONE: yaml parser
 # Read the yaml file
 # a) Parse distortion coefficients and output a table/dictionary for the values
